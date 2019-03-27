@@ -7,26 +7,32 @@ class App extends Component {
     this.state = {
       message:'',
       messages : [
-        {id:0,text:"Hola1"},
-        {id:1,text:"Hola2"},
-        {id:2,text:"Hola3"},
+
       ]
     }
   }
   handleSubmit(e){
     e.preventDefault();
-    const list = this.state.messages;
     const newMessage={
       id: this.state.messages.length,
       text:this.state.message
-    }
-    list.push(newMessage);
-    this.setState({messages:list});
+    };
+
+    window.firebase.database().ref(`messages/${newMessage.id}`).set(newMessage);
     this.setState({message:''});
   }
   updateMessage(e){
     this.setState({message:e.target.value});
     console.log(this.state.message);
+  }
+  componentDidMount(){
+    window.firebase.database().ref('messages/').on('value',snap=>{
+      const currentessages = snap.val();
+      if(currentessages !== null){
+        this.setState({messages:currentessages});
+      }
+
+    });
   }
   render() {
     const {messages}= this.state;
